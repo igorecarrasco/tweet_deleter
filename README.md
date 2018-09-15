@@ -37,4 +37,4 @@ Copy the `tweets.csv` file from the base directory of the archive into this appl
 
 ### Running that baby
 
-A simple ```python3 delete.py``` will suffice.
+A simple ```python3 delete.py``` will suffice. Let it run for as long as you feel comfortable -- it will delete as much as it can. If you want it to stop, hit Ctrl+C to interrupt running. If you run it again, it will pick right back up from where it started.
