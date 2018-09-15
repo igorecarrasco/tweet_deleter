@@ -41,4 +41,3 @@ A simple
 ```
 python3 delete.py``` 
 will suffice.
-
