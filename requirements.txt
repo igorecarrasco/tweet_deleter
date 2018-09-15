@@ -1,0 +1,2 @@
+twython==3.7.0
+PyYAML==3.13
