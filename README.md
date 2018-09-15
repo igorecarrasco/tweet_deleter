@@ -37,6 +37,8 @@ Copy the `tweets.csv` file from the base directory of the archive into this appl
 
 ### Running that baby
 
-A simple ```
-python3 delete.py
-``` will suffice.
+A simple 
+```
+python3 delete.py``` 
+will suffice.
+
