@@ -1,0 +1,15 @@
+# .csv files
+*.csv
+
+# sensitive keys
+*.env
+*.yaml
+
+# Maintenance, local stuff, C files
+*.pyc
+__pycache__/*
+.mypy_cache/*
+.vscode/*
+envname/*
+venv/*
+
