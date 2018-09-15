@@ -14,7 +14,7 @@ import sys
 import time
 
 from twython import Twython
-from twython.exceptions import TwythonRateLimitError, TwythonError
+from twython.exceptions import TwythonRateLimitError, TwythonError, TwythonAuthError
 import yaml
 
 from spinner import SpinCursor
@@ -30,6 +30,12 @@ class TwitterDelete:
             keys = yaml.safe_load(file)
 
         self.twitter = Twython(*keys.values())
+
+        try:
+            self.twitter.verify_credentials()
+        except TwythonAuthError:
+            print("Invalid (or missing) credentials.")
+            sys.exit()
 
     def pull_ids(
         self, file_name: str = "tweets.csv", deleted_csvs: str = "deleted.csv"
