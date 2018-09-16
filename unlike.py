@@ -17,6 +17,7 @@ class TwitterUnlike:
     """
 
     def __init__(self, keys_file: str = "keys.yaml") -> None:
+        self.count = 0
         with open(keys_file, "r") as file:
             keys = yaml.safe_load(file)
 
@@ -37,7 +38,7 @@ class TwitterUnlike:
 
         return like_ids
 
-    def delete_likes(self, like_ids: list) -> int:
+    def delete_likes(self, like_ids: list) -> None:
         """
         Deletes tweets from a list of tweet ids.
 
@@ -46,19 +47,15 @@ class TwitterUnlike:
         like_ids: list
             List of liked tweet ids.
         """
-        count = 0
-
         for like_id in like_ids:
             try:
                 self.twitter.destroy_favorite(id=like_id)
-                count += 1
+                self.count += 1
             except TwythonRateLimitError as e:
                 time.sleep(int(e.retry_after))
                 continue
             except TwythonError as e:
                 print(str(e))
-
-        return count
 
 
 if __name__ == "__main__":
@@ -69,11 +66,11 @@ if __name__ == "__main__":
     while True:
         try:
             ids = unliker.pull_ids()
-            returns = unliker.delete_likes(ids)
+            unliker.delete_likes(ids)
         except TwythonError:
             break
         except KeyboardInterrupt:
             break
 
-    print(f"Unliked {returns} tweets.")
+    print(f"Unliked {unliker.count} tweets.")
     spin.stop()
