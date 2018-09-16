@@ -9,7 +9,6 @@ history can be found under this link:
 https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive
 """
 import csv
-import os
 import sys
 import time
 
