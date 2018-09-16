@@ -93,7 +93,7 @@ class TwitterDelete:
                             deleted.append(tweet_id)
                             deleted_write.writerow([tweet_id])
                         except TwythonRateLimitError as e:
-                            time.sleep(e.retry_after - time.time())
+                            time.sleep(int(e.retry_after) - time.time())
                             continue
                         except TwythonError:
                             continue
