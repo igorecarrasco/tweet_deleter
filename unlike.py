@@ -52,7 +52,7 @@ class TwitterUnlike:
                 self.twitter.destroy_favorite(id=like_id)
                 self.count += 1
             except TwythonRateLimitError as e:
-                time.sleep(int(e.retry_after))
+                time.sleep(e.retry_after - time.time())
                 continue
             except TwythonError as e:
                 print(str(e))
@@ -67,7 +67,10 @@ if __name__ == "__main__":
         try:
             ids = unliker.pull_ids()
             unliker.delete_likes(ids)
-        except TwythonError:
+        except TwythonRateLimitError as e:
+            time.sleep(e.retry_after - time.time())
+        except TwythonError as e:
+            print(str(e))
             break
         except KeyboardInterrupt:
             break
