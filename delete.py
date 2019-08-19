@@ -11,6 +11,7 @@ https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-a
 import csv
 import sys
 import time
+import json
 
 from twython import Twython
 from twython.exceptions import TwythonRateLimitError, TwythonError, TwythonAuthError
@@ -36,9 +37,7 @@ class TwitterDelete:
             print("Invalid (or missing) credentials.")
             sys.exit()
 
-    def pull_ids(
-        self, file_name: str = "tweets.csv", deleted_csvs: str = "deleted.csv"
-    ) -> list:
+    def pull_ids(self, file_name: str = "tweet.js", deleted_csvs: str = "deleted.csv") -> list:
         """
         Reads a Twitter .csv file and returns a
         list of IDs from an users' history.
@@ -52,9 +51,14 @@ class TwitterDelete:
         deleted_ids: list = []
 
         with open(file_name, "r") as file:
-            tweet_history = csv.DictReader(file, delimiter=",")
+            tweets = file.readlines()[1:]
+            tweets.insert(0, "[{")
+            tweets = "".join(tweets)
+
+            tweet_history = json.loads(tweets)
+
             for row in tweet_history:
-                tweet_ids.append(row.get("tweet_id"))
+                tweet_ids.append(row.get("id"))
 
         try:
             with open(deleted_csvs, "r") as deleteds_file:
@@ -69,9 +73,7 @@ class TwitterDelete:
 
         return tweet_ids
 
-    def delete_tweets(
-        self, tweet_ids: list, deleted_file_name: str = "deleted.csv"
-    ) -> list:
+    def delete_tweets(self, tweet_ids: list, deleted_file_name: str = "deleted.csv") -> list:
         """
         Deletes tweets from a list of tweet ids.
 
@@ -87,16 +89,33 @@ class TwitterDelete:
             while persist == True:
                 with open(deleted_file_name, "a") as deleted_file:
                     deleted_write = csv.writer(deleted_file)
-                    for tweet_id in tweet_ids:
-                        try:
-                            self.twitter.destroy_status(id=tweet_id)
-                            deleted.append(tweet_id)
-                            deleted_write.writerow([tweet_id])
-                        except TwythonRateLimitError as e:
-                            time.sleep(int(e.retry_after) - time.time())
-                            continue
-                        except TwythonError:
-                            continue
+                    try:
+                        for tweet_id in tweet_ids:
+                            try:
+                                self.twitter.destroy_status(id=tweet_id)
+                                deleted.append(tweet_id)
+                                deleted_write.writerow([tweet_id])
+                            except TwythonRateLimitError as e:
+                                time.sleep(int(e.retry_after) - time.time())
+                                continue
+                            except TwythonError as e:
+                                try:
+                                    self.twitter.request(
+                                        endpoint="statuses/unretweet",
+                                        method="POST",
+                                        params={"id": tweet_id},
+                                    )
+
+                                except TwythonError:
+                                    print(str(e))
+                                    continue
+                                else:
+                                    print(str(e))
+                                    continue
+
+                    except StopIteration:
+                        persist = False
+                        break
 
         except KeyboardInterrupt:
             return deleted
@@ -108,7 +127,7 @@ if __name__ == "__main__":
     spin = SpinCursor(msg="Running Tweet Deleter.", speed=3)
     spin.start()
     deleter = TwitterDelete()
-    ids = deleter.pull_ids(file_name="tweets.csv")
+    ids = deleter.pull_ids(file_name="tweet.js")
     returns = deleter.delete_tweets(ids)
     print(f"Deleted {len(returns)} tweets.")
     spin.stop()

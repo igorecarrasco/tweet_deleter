@@ -23,11 +23,7 @@ class TwitterUnlike:
 
         self.twitter = Twython(*keys.values())
 
-        try:
-            self.twitter.verify_credentials()
-        except TwythonAuthError:
-            print("Invalid (or missing) credentials.")
-            sys.exit()
+        self.twitter.verify_credentials()
 
     def pull_ids(self) -> list:
         """
@@ -54,26 +50,32 @@ class TwitterUnlike:
             except TwythonRateLimitError as e:
                 time.sleep(int(e.retry_after) - time.time())
                 continue
-            except TwythonError as e:
-                print(str(e))
 
 
 if __name__ == "__main__":
     spin = SpinCursor(msg="Running Tweet Unliker.", speed=2)
-    spin.start()
-    unliker = TwitterUnlike()
+
+    try:
+        unliker = TwitterUnlike()
+    except TwythonAuthError as e:
+        print(str(e))
+        sys.exit()
 
     while True:
+        spin.start()
         try:
             ids = unliker.pull_ids()
             unliker.delete_likes(ids)
         except TwythonRateLimitError as e:
             time.sleep(int(e.retry_after) - time.time())
-        except TwythonError as e:
+        except (TwythonError, TwythonAuthError) as e:
             print(str(e))
             break
         except KeyboardInterrupt:
             break
+        finally:
+            spin.stop()
+            print(f"Unliked {unliker.count} tweets.")
+            break
 
-    print(f"Unliked {unliker.count} tweets.")
-    spin.stop()
+    sys.exit()
