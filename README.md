@@ -32,9 +32,9 @@ token_secret: "***********************************************"
 
 ### Tweet history
 
-The deleter works is by parsing the standard `.csv` Twitter exports when you ask for your archive. Instructions on how to download it can be found [here](https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive).
+The deleter works is by parsing the standard `.js` Twitter exports when you ask for your archive. Instructions on how to download it can be found [here](https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive).
 
-Copy the `tweets.csv` file from the base directory of the archive into this applications' base directory and you're good to go.
+Copy the `tweet.js` file from the base directory of the archive into this applications' base directory and you're good to go.
 
 ### Running the deleter
 
