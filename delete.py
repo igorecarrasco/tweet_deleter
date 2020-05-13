@@ -58,7 +58,7 @@ class TwitterDelete:
             tweet_history = json.loads(tweets)
 
             for row in tweet_history:
-                tweet_ids.append(row.get("id"))
+                tweet_ids.append(row["tweet"].get("id"))
 
         try:
             with open(deleted_csvs, "r") as deleteds_file:
